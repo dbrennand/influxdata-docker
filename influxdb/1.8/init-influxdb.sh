@@ -22,7 +22,14 @@ fi
 if ( [ ! -z "$INIT_USERS" ] || [ ! -z "$INFLUXDB_DB" ] || [ "$(ls -A /docker-entrypoint-initdb.d 2> /dev/null)" ] ) && [ ! "$(ls -d "$META_DIR" 2>/dev/null)" ]; then
 
 	INIT_QUERY=""
-	CREATE_DB_QUERY="CREATE DATABASE $INFLUXDB_DB"
+
+	# Check if an environment variable for database duration is set.
+	# If so, then initalize database with the specified duration, otherwise use the default.
+	if [ -z "$INFLUXDB_DB_DURATION" ]; then
+		CREATE_DB_QUERY="CREATE DATABASE $INFLUXDB_DB"
+	else
+		CREATE_DB_QUERY="CREATE DATABASE $INFLUXDB_DB WITH DURATION $INFLUXDB_DB_DURATION"
+	fi
 
 	if [ ! -z "$INIT_USERS" ]; then
 
